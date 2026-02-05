@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qwen-tts
+  namespace: default
+spec:
+  nodeSelector:
+    karpenter.sh/nodepool: shipyard-general-on-demand-amd64-gpu
+  tolerations:
+    - key: "amd64-gpu"
+      value: "true"
+      effect: "NoExecute"
+  containers:
+    - name: tts
+      image: nvidia/cuda:12.1.0-devel-ubuntu22.04
+      securityContext:
+        privileged: true
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: nvidia-dev
+          mountPath: /dev/nvidia0
+        - name: nvidia-ctl
+          mountPath: /dev/nvidiactl
+        - name: nvidia-uvm
+          mountPath: /dev/nvidia-uvm
+        - name: data
+          mountPath: /data
+      resources:
+        limits:
+          memory: "16Gi"
+        requests:
+          memory: "8Gi"
+  volumes:
+    - name: nvidia-dev
+      hostPath:
+        path: /dev/nvidia0
+    - name: nvidia-ctl
+      hostPath:
+        path: /dev/nvidiactl
+    - name: nvidia-uvm
+      hostPath:
+        path: /dev/nvidia-uvm
+    - name: data
+      emptyDir: {}
+  restartPolicy: Never

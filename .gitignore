@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.venv/
+
+# Audio files (keep samples in repo, exclude large/generated files)
+audio/output/*.wav
+audio/voice_sample.wav
+*.mp3
+*.flac
+
+# Models (too large for git)
+models/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.log

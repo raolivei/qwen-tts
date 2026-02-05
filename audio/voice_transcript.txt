@@ -1,0 +1,5 @@
+The eldertree cluster didn't start as a grand plan—it began with a simple need: run my personal applications without depending on cloud providers. What started as a single Raspberry Pi running Docker containers evolved into a full Kubernetes cluster, teaching me more about infrastructure, resilience, and problem-solving than I ever expected.
+
+The decision to self-host came from several motivations: Privacy and Data Ownership - my personal finance data shouldn't live on someone else's servers. User data for commercial projects requires full control. Learning projects generate data I want to own completely.
+
+Learning Kubernetes Hands-On - Reading about Kubernetes isn't the same as running it. Production experience teaches lessons you can't learn from tutorials. Understanding the full stack from hardware to applications.

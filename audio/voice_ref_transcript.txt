@@ -1,0 +1,1 @@
+Learning Kubernetes Hands-On - Reading about Kubernetes isn't the same as running it. Production experience teaches lessons you can't learn from tutorials. Understanding the full stack from hardware to applications.
