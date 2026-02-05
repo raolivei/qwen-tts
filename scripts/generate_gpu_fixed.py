@@ -97,8 +97,9 @@ with open(VOICE_REF_TRANSCRIPT, "r") as f:
     ref_text = f.read().strip()
 print(f"Transcript: {ref_text[:80]}...")
 
-# Goldie demo script
-target_text = """
+# Load target text from file or use default
+TARGET_TEXT_FILE = os.environ.get("TTS_TARGET_TEXT_FILE", "/data/target_text.txt")
+DEFAULT_TEXT = """
 Goldie runs on EKS in our shipyard-general dev and stage clusters. We run a single Goldie pod per environment. The app talks to Slack over Socket Mode, a long-lived WebSocket that the pod opens to Slack, so events like mentions and messages get pushed to us and we reply on the same connection. No public URL or ingress needed. Embeddings are done via Bedrock batch jobs, so the app stays simple and we follow the same Shipyard pattern as our other Cloud Solutions apps.
 
 We build and push the Docker image with GitHub Actions to ECR. To deploy, we update the image tag in the env-specific Helm values, and ArgoCD syncs and rolls out to EKS. Our workflow can also open a PR with the new tag so you merge and ArgoCD picks it up.
@@ -107,6 +108,15 @@ The interesting piece is cross-account Bedrock. We use IAM role assumption so th
 
 Today it is dev and stage. We are set up to take it to prod when the team is ready.
 """.strip()
+
+# Try to load from file, fall back to default
+if os.path.exists(TARGET_TEXT_FILE):
+    with open(TARGET_TEXT_FILE, "r") as f:
+        target_text = f.read().strip()
+    print(f"Loaded target text from: {TARGET_TEXT_FILE}")
+else:
+    target_text = DEFAULT_TEXT
+    print("Using default target text (Goldie demo script)")
 
 print(f"\n[4/4] Generating audio for {len(target_text.split())} words...")
 print("This may take a few minutes...")

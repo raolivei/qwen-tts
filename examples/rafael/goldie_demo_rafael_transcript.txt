@@ -1,0 +1,11 @@
+Quick pass over the architecture—you can follow on the diagram.
+
+App and Slack. One app boundary, one pod per env on EKS. We kept it that way on purpose. Slack: Socket Mode, so the app opens out to Slack and everything flows over that connection—no ingress to manage. On the left you see that link.
+
+Compute and Bedrock. Pod runs in our clusters with IRSA. Bedrock lives in another account; we assume a role from the pod so we get Claude and batch embeddings without moving the app. Embeddings are batch jobs, not a separate service—same op story as the rest of Shipyard.
+
+Data and secrets. Postgres with pgvector for RAG and conversation context, S3 for vectors and batch I/O. Secrets from Vault and External Secrets; repo access via the GitHub App with short-lived tokens. No long-lived creds or SSH keys in the app.
+
+Deploy. Usual path: Actions to ECR, bump the image tag in Helm, Argo syncs. We've got the auto-PR for the tag so it's merge and go.
+
+That's it. Running in non-prod today; we're ready for prod when the team is.
