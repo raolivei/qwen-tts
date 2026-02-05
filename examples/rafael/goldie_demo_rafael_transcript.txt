@@ -1,7 +1,11 @@
-This is an example reference transcript for the voice cloning demo.
+Here's how it works behind the scenes. Quick pass over the architecture—you can follow on the diagram.
 
-The transcript must match exactly what was spoken in the paired reference audio file. Every word, pause, and phrase should be accurately captured for best results.
+One app, one pod per env on EKS. We kept it that way on purpose. Slack is Socket Mode—the app opens out to Slack, everything flows over that connection. No ingress to manage.
 
-When recording your own reference, speak naturally and clearly. Read something with varied intonation to give the model a good sample of your voice characteristics.
+Pod runs in our clusters with IRSA. Bedrock lives in another account; we assume a role so the pod gets Claude and batch embeddings without moving the app. Embeddings are batch jobs, not a separate service. Same op story as the rest of Shipyard.
 
-Replace both this transcript and the audio file with your own voice sample.
+Data: Postgres with pgvector for RAG and conversation context, S3 for vectors and batch I/O. Secrets from Vault and External Secrets; repo access via the GitHub App with short-lived tokens. No long-lived creds or SSH keys in the app.
+
+Deploy is the usual path: Actions to ECR, bump the image tag in Helm, Argo syncs. We've got the auto-PR for the tag so it's merge and go.
+
+That's it. Thank you for listening.
