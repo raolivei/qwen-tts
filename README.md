@@ -1,6 +1,6 @@
 # Qwen3-TTS Voice Cloning
 
-Generate natural-sounding speech in your own voice using [Qwen3-TTS](https://huggingface.co/Qwen/Qwen3-TTS).
+Generate natural-sounding speech in your own voice using [Qwen3-TTS](https://huggingface.co/spaces/Qwen/Qwen3-TTS).
 
 ## How to Use (Step by Step)
 
