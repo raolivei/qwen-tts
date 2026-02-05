@@ -2,68 +2,74 @@
 
 Generate natural-sounding speech in your own voice using [Qwen3-TTS](https://huggingface.co/Qwen/Qwen3-TTS).
 
-## Quick Start
+## How to Use (Step by Step)
 
-### 1. Setup
+### Step 1: Clone and Setup
 
 ```bash
-# Clone repo
 git clone https://github.com/raolivei/qwen-tts.git
 cd qwen-tts
 
-# Create environment
+# Create Python environment
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate   # On Mac/Linux
 pip install torch soundfile numpy qwen-tts
 
-# Download model (~5GB)
+# Download the model (~5GB, one-time)
 mkdir -p ~/models
 huggingface-cli download Qwen/Qwen3-TTS --local-dir ~/models/qwen3-tts
 ```
 
-### 2. Prepare Your Voice Sample
+### Step 2: Record Your Voice Sample
 
-Record 10-15 seconds of yourself speaking clearly, then:
-
-```bash
-# Convert to correct format (24kHz mono WAV)
-ffmpeg -i your_recording.m4a -ar 24000 -ac 1 audio/voice_ref.wav
-
-# Create transcript (MUST match exactly what you said)
-echo "The exact words you spoke in the recording..." > audio/voice_ref_transcript.txt
-```
-
-**Tips for good results:**
+Record **10-15 seconds** of yourself speaking clearly. Tips:
 - Speak naturally at your normal pace
 - Use clear audio (minimal background noise)
-- 10-15 seconds works best (longer isn't always better)
-- Transcript must match audio exactly
+- Read something with varied intonation (not monotone)
 
-### 3. Generate
+### Step 3: Prepare Reference Files
 
 ```bash
-# Test with short sample
-python scripts/tts_smoke_test.py
+# Convert your recording to correct format (24kHz mono WAV)
+ffmpeg -i your_recording.m4a -ar 24000 -ac 1 audio/voice_ref.wav
 
-# Custom text
-python scripts/tts_smoke_test.py --text "Your custom text here"
-
-# Output: audio/output/tts_smoke_test.wav
+# Create transcript - MUST match EXACTLY what you said
+echo "The exact words you spoke in the recording go here..." > audio/voice_ref_transcript.txt
 ```
 
-### 4. Generate Full Demo
+### Step 4: Test with Short Sample
+
+```bash
+# Quick test (~10 seconds output)
+python scripts/tts_smoke_test.py
+
+# Listen to: audio/output/tts_smoke_test.wav
+```
+
+### Step 5: Generate Full Demo (Optional - needs GPU)
 
 For longer content, use the GPU script on EKS:
 
 ```bash
-# Edit scripts/generate_gpu_fixed.py with your target text
-# Then run on GPU pod:
+# 1. Create your demo script
+echo "Your full demo text goes here..." > audio/target_text.txt
+
+# 2. Create GPU pod (VPN required)
+kubectl apply -f k8s/qwen-tts-pod.yaml
+kubectl wait --for=condition=Ready pod/qwen-tts --timeout=300s
+
+# 3. One-time setup (downloads model, ~10 min)
+./scripts/setup_eks_tts.sh default
+
+# 4. Generate (~2 min per minute of audio)
 ./scripts/run_tts_eks.sh default
+
+# Output: audio/output/goldie_demo.wav
 ```
 
-## Examples
+## Quick Reference
 
-Use Rafael's voice sample as reference:
+### Test with Example Voice (Rafael's)
 
 ```bash
 python scripts/tts_smoke_test.py \
@@ -72,57 +78,72 @@ python scripts/tts_smoke_test.py \
   --text "Hello, this is a test of voice cloning."
 ```
 
+### Custom Text Generation
+
+```bash
+python scripts/tts_smoke_test.py --text "Your custom text here"
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TTS_MODEL_PATH` | `~/models/qwen3-tts` | Path to model |
+| `TTS_VOICE_REF` | `audio/voice_ref.wav` | Reference audio |
+| `TTS_OUTPUT_PATH` | `audio/output/...` | Output file |
+
 ## Optimal Parameters
 
-These work well for most voices:
+These settings produce the best results:
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
-| Reference length | 10-15s | More speech = better voice capture |
-| repetition_penalty | 1.4 | Prevents loops without artifacts |
+| Reference length | 10-15s | More speech content = better |
+| repetition_penalty | 1.4 | Prevents loops |
 | temperature | 0.6 | Natural prosody |
-| subtalker_temperature | 0.55 | Consistent tone |
-| top_p | 0.9 | Nucleus sampling |
-| max_new_tokens | 180 | ~15 sec output max |
+| max_new_tokens | 180 (short) / 2048 (long) | ~12 tokens/sec |
 
 ## Troubleshooting
 
-**Output is repeating/looping**
+### Output is repeating/looping
 - Increase `repetition_penalty` to 1.5
 - Decrease `temperature` to 0.5
+- Reduce `max_new_tokens`
 
-**Output doesn't sound like me**
+### Output doesn't sound like me
 - Use longer reference (15s instead of 10s)
-- Ensure transcript matches audio exactly
-- Try different segment of your recording
+- **Ensure transcript matches audio EXACTLY**
+- Try a different segment of your recording
 
-**Output is cut off**
-- Increase `max_new_tokens`
-- For 2-minute demo, use `max_new_tokens=2048`
+### Output is too short/cut off
+- Increase `max_new_tokens` (use 2048 for full demos)
 
 ## Project Structure
 
 ```
-audio/
-  voice_ref.wav              # YOUR reference audio
-  voice_ref_transcript.txt   # YOUR transcript
-  output/                    # Generated files
-examples/
-  rafael/                    # Example voice sample
-scripts/
-  tts_smoke_test.py          # Quick test (Mac/local)
-  generate_gpu_fixed.py      # Full generation (GPU/EKS)
-  analyze_tts_wav.py         # Audio quality check
-k8s/
-  qwen-tts-pod.yaml          # Kubernetes pod for GPU
+qwen-tts/
+├── audio/
+│   ├── voice_ref.wav           # YOUR voice reference
+│   ├── voice_ref_transcript.txt # YOUR transcript
+│   ├── target_text.txt         # (optional) Custom demo script
+│   └── output/                 # Generated audio
+├── examples/
+│   └── rafael/                 # Example voice sample
+├── scripts/
+│   ├── tts_smoke_test.py       # Quick test (Mac/local)
+│   ├── generate_gpu_fixed.py   # Full generation (GPU)
+│   ├── run_tts_eks.sh          # EKS helper
+│   └── analyze_tts_wav.py      # Audio quality check
+└── k8s/
+    └── qwen-tts-pod.yaml       # GPU pod spec
 ```
 
 ## For Goldie Demo
 
-1. Record yourself reading the demo script (or any ~15s sample)
-2. Save as `audio/voice_ref.wav` with matching transcript
-3. Test: `python scripts/tts_smoke_test.py`
-4. Generate full demo on EKS GPU for speed
+1. Record 10-15 seconds of yourself speaking
+2. Save as `audio/voice_ref.wav` with matching `audio/voice_ref_transcript.txt`
+3. Test locally: `python scripts/tts_smoke_test.py`
+4. If good, generate full demo on EKS GPU
 
 ## License
 
