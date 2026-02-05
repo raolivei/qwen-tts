@@ -10,6 +10,12 @@ ENV/
 audio/output/*.wav
 audio/voice_sample.wav
 
+# Personal voice reference files (user-specific)
+audio/voice_ref.wav
+audio/voice_ref_transcript.txt
+audio/target_text.txt
+audio/goldie_demo_rafael_transcript.txt
+
 # Models (too large)
 models/
 

@@ -64,7 +64,7 @@ kubectl wait --for=condition=Ready pod/qwen-tts --timeout=300s
 # 4. Generate (~2 min per minute of audio)
 ./scripts/run_tts_eks.sh default
 
-# Output: audio/output/goldie_demo.wav
+# Output: audio/output/tts_output.wav
 ```
 
 ## Quick Reference
@@ -138,12 +138,12 @@ qwen-tts/
     └── qwen-tts-pod.yaml       # GPU pod spec
 ```
 
-## For Goldie Demo
+## Quick Start
 
 1. Record 10-15 seconds of yourself speaking
 2. Save as `audio/voice_ref.wav` with matching `audio/voice_ref_transcript.txt`
 3. Test locally: `python scripts/tts_smoke_test.py`
-4. If good, generate full demo on EKS GPU
+4. If good, generate full audio on GPU cluster
 
 ## License
 

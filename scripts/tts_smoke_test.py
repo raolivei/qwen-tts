@@ -30,7 +30,7 @@ DEFAULT_TRANSCRIPT = os.path.join(PROJECT_DIR, "audio", "voice_ref_transcript.tx
 DEFAULT_OUTPUT = os.path.join(PROJECT_DIR, "audio", "output", "tts_smoke_test.wav")
 
 # Test text (~10 seconds)
-DEFAULT_TEXT = "Goldie runs on EKS in our shipyard dev cluster. We run a single pod per environment. The app talks to Slack over Socket Mode, a long-lived WebSocket connection."
+DEFAULT_TEXT = "This is a test of the voice cloning system. The model learns from a short reference recording and can generate new speech that sounds like the original speaker."
 
 
 def normalize_audio(wav, eps=1e-12, clip=True):
