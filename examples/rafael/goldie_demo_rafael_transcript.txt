@@ -8,4 +8,4 @@ Data: Postgres with pgvector for RAG and conversation context, S3 for vectors an
 
 Deploy is the usual path: Actions to ECR, bump the image tag in Helm, Argo syncs. We've got the auto-PR for the tag so it's merge and go.
 
-That's it. Thank you for listening.
+That's it. Running in non-prod today; we're ready for prod when the team is.
