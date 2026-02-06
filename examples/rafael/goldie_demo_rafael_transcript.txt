@@ -1,11 +1,11 @@
 Here's how it works behind the scenes. Quick pass over the architecture—you can follow on the diagram.
 
-One app, one pod per env on EKS. We kept it that way on purpose. Slack is Socket Mode—the app opens out to Slack, everything flows over that connection. No ingress to manage.
+One app, one pod per env on EKS. The pod mounts EFS for repo storage. We kept it that way on purpose. Slack is Socket Mode—the app opens out to Slack, everything flows over that connection. No ingress to manage.
 
-Pod runs in our clusters with IRSA. Bedrock lives in another account; we assume a role so the pod gets Claude and batch embeddings without moving the app. Embeddings are batch jobs, not a separate service. Same op story as the rest of Shipyard.
+Pod runs in our clusters with IRSA. Bedrock lives in another account; we assume a role so the pod gets Claude and batch embeddings without moving the app. Embeddings are batch jobs, not a separate service—that keeps a single app boundary. Same op story as the rest of Shipyard.
 
-Data: Postgres with pgvector for RAG and conversation context, S3 for vectors and batch I/O. Secrets from Vault and External Secrets; repo access via the GitHub App with short-lived tokens. No long-lived creds or SSH keys in the app.
+Data: Postgres with pgvector, managed by DRE, for RAG and conversation context. S3 for vector storage and for Bedrock batch input and output. Secrets from Vault and External Secrets—injected at runtime, not in the image. Repo access via the GitHub App with short-lived tokens for cloning and ingesting. No long-lived creds or SSH keys in the app.
 
-Deploy is the usual path: Actions to ECR, bump the image tag in Helm, Argo syncs. We've got the auto-PR for the tag so it's merge and go.
+Deploy is the usual path: Actions to ECR, bump the image tag in Helm, Argo syncs. The Goldie Argo app deploys the Goldie pod—that pod runs the Slack bot. When the pod starts, it opens the Socket Mode connection to Slack, so the bot is live. We've got the auto-PR for the tag so it's merge and go.
 
 That's it. Running in non-prod today; we're ready for prod when the team is.

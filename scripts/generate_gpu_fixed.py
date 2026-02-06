@@ -12,7 +12,7 @@ MODEL_PATH = os.environ.get("TTS_MODEL_PATH", "/models/qwen3-tts")
 # Use 10-15s reference for best voice fidelity
 VOICE_REF = os.environ.get("TTS_VOICE_REF", "/data/voice_ref.wav")
 VOICE_REF_TRANSCRIPT = os.environ.get("TTS_VOICE_REF_TRANSCRIPT", "/data/voice_ref_transcript.txt")
-OUTPUT_PATH = os.environ.get("TTS_OUTPUT_PATH", "/data/tts_output.wav")
+OUTPUT_PATH = os.environ.get("TTS_OUTPUT_PATH", "/data/goldie_demo.wav")
 # x_vector_only_mode=False gives best voice fidelity with tuned params
 X_VECTOR_ONLY = os.environ.get("X_VECTOR_ONLY", "0").strip().lower() in ("1", "true", "yes")
 
@@ -100,13 +100,13 @@ print(f"Transcript: {ref_text[:80]}...")
 # Load target text from file or use default
 TARGET_TEXT_FILE = os.environ.get("TTS_TARGET_TEXT_FILE", "/data/target_text.txt")
 DEFAULT_TEXT = """
-This is a sample text for voice cloning demonstration. The system uses a neural network model to learn the characteristics of your voice from a short reference recording.
+Goldie runs on EKS in our shipyard-general dev and stage clusters. We run a single Goldie pod per environment. The app talks to Slack over Socket Mode, a long-lived WebSocket that the pod opens to Slack, so events like mentions and messages get pushed to us and we reply on the same connection. No public URL or ingress needed. Embeddings are done via Bedrock batch jobs, so the app stays simple and we follow the same Shipyard pattern as our other Cloud Solutions apps.
 
-Once trained, it can synthesize new speech that sounds like you, reading any text you provide. The quality depends on the reference audio clarity, the accuracy of the transcript, and the generation parameters.
+We build and push the Docker image with GitHub Actions to ECR. To deploy, we update the image tag in the env-specific Helm values, and ArgoCD syncs and rolls out to EKS. Our workflow can also open a PR with the new tag so you merge and ArgoCD picks it up.
 
-For best results, use a fifteen second reference with clear speech and minimal background noise. Make sure the transcript matches exactly what was spoken in the reference.
+The interesting piece is cross-account Bedrock. We use IAM role assumption so the pod can call Claude and run batch embedding jobs. No need to move the app. For data, we use PostgreSQL with pgvector for RAG and conversation history, and S3 for vectors and batch inference I/O. Secrets come from Vault via External Secrets, no long-lived creds in the app. Repo access is through our GitHub App with short-lived tokens, no SSH keys.
 
-You can customize this text by creating your own target text file. The model works well with conversational content and natural phrasing.
+Today it is dev and stage. We are set up to take it to prod when the team is ready.
 """.strip()
 
 # Try to load from file, fall back to default
@@ -116,7 +116,7 @@ if os.path.exists(TARGET_TEXT_FILE):
     print(f"Loaded target text from: {TARGET_TEXT_FILE}")
 else:
     target_text = DEFAULT_TEXT
-    print("Using default target text")
+    print("Using default target text (Goldie demo script)")
 
 print(f"\n[4/4] Generating audio for {len(target_text.split())} words...")
 print("This may take a few minutes...")

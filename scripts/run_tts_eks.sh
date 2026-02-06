@@ -10,7 +10,7 @@
 #   2. Run this script - it will copy and use that file
 #
 # Prereqs:
-#   - kubectl configured to reach your GPU-enabled cluster
+#   - VPN to reach EKS (e.g. shipyard-general-us-west-dev)
 #   - Pod running: kubectl apply -f k8s/qwen-tts-pod.yaml
 #   - One-time setup: ./scripts/setup_eks_tts.sh default
 set -e
@@ -54,7 +54,7 @@ if [[ -f "$AUDIO_DIR/target_text.txt" ]]; then
     echo "Using custom target text from audio/target_text.txt"
     kubectl cp "$AUDIO_DIR/target_text.txt" "$NAMESPACE/$POD:/data/target_text.txt"
 else
-    echo "Using default target text"
+    echo "Using default target text (Goldie demo script)"
 fi
 
 echo ""
@@ -66,8 +66,8 @@ echo ""
 echo "Copying output..."
 OUTPUT_DIR="$AUDIO_DIR/output"
 mkdir -p "$OUTPUT_DIR"
-kubectl cp "$NAMESPACE/$POD:/data/tts_output.wav" "$OUTPUT_DIR/tts_output.wav"
+kubectl cp "$NAMESPACE/$POD:/data/goldie_demo.wav" "$OUTPUT_DIR/goldie_demo.wav"
 
 echo ""
 echo "=== Done! ==="
-echo "Output: $OUTPUT_DIR/tts_output.wav"
+echo "Output: $OUTPUT_DIR/goldie_demo.wav"

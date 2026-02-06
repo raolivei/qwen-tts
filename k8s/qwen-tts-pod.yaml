@@ -5,10 +5,7 @@ metadata:
   namespace: default
 spec:
   nodeSelector:
-    # REQUIRED: Set your GPU nodepool label
-    # Example: karpenter.sh/nodepool: my-gpu-nodepool
-    #          node.kubernetes.io/instance-type: g4dn.xlarge
-    nvidia.com/gpu.present: "true"
+    karpenter.sh/nodepool: shipyard-general-on-demand-amd64-gpu
   tolerations:
     - key: "amd64-gpu"
       value: "true"
