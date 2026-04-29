@@ -9,6 +9,9 @@ ENV/
 # Audio outputs (generated)
 audio/output/*.wav
 audio/voice_sample.wav
+audio/eldertree/
+audio/eldertree/output/
+audio/eldertree/output/**
 
 # Personal voice reference files (user-specific)
 audio/voice_ref.wav
@@ -27,3 +30,4 @@ models/
 # OS
 .DS_Store
 Thumbs.db
+*.bak

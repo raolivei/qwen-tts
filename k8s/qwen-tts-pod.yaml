@@ -12,7 +12,7 @@ spec:
       effect: "NoExecute"
   containers:
     - name: tts
-      image: nvidia/cuda:12.1.0-devel-ubuntu22.04
+      image: nvcr.io/nvidia/cuda:12.1.0-devel-ubuntu22.04
       securityContext:
         privileged: true
       command: ["sleep", "infinity"]
